@@ -3,63 +3,72 @@ import ContactList from './components/ContactList/ContactList';
 import Filter from './components/Filter/Filter';
 import { Container } from './App.styled';
 import React, { useState, useEffect } from 'react';
-import { nanoid } from 'nanoid';
 
-const KEY = 'contacts';
+const KEY = "contacts";
 
 const App = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+	const inLocalStorage = (key) => {
+		try {
+			const getData = localStorage.getItem(key);
+			const contacts = JSON.parse(getData);
+			return contacts.filter(({ id, name, number }) => id && name && number);
+		} catch (error) {
+			console.log("Error state is: ", error.message);
+		}
+	};
 
-  useEffect(() => {
-    const contactsInStorage = localStorage.getItem(KEY);
-    if (contactsInStorage !== null) {
-      setContacts(JSON.parse(contactsInStorage));
-    }
-  }, []);
+	const saveToLocalStorage = (key, value) => {
+		try {
+			const contacts = JSON.stringify(value);
+			localStorage.setItem(key, contacts);
+		} catch (error) {
+			console.log("Error state is: ", error.message);
+		}
+	};
 
-  useEffect(() => {
-    localStorage.setItem(KEY, JSON.stringify(contacts));
-  }, [contacts]);
+	const [phonebook, setPhonebook] = useState(() => {
+		return { contacts: inLocalStorage(KEY), filter: "" };
+	});
 
-  const addContact = ({ name, number }) => {
-    const newContact = {
-      id: nanoid(),
-      name,
-      number,
-    };
+	useEffect(() => {
+		saveToLocalStorage(KEY, phonebook.contacts);
+	}, [phonebook]);
 
-    return contacts.find(
-      contact => newContact.name.toLowerCase() === contact.name.toLowerCase()
-    )
-      ? alert(`${newContact.name} is already in contacts.`)
-      : setContacts(() => [...contacts, newContact]);
-  };
+	const addContact = ({ newContact }) => {
+		if (phonebook.contacts.find((item) => item.name === newContact.name)) {
+			alert(`${newContact.name} is already in contacts!`);
+			return;
+		}
+		setPhonebook((prev) => ({
+			contacts: [...prev.contacts, newContact],
+			filter: prev.filter,
+		}));
+	};
 
-  const handleDelete = id => setContacts(() => contacts.filter(contact => contact.id !== id));
+	const handleFilter = (e) => {
+		setPhonebook({ ...phonebook, filter: e.target.value });
+	};
 
-  const handleFilter = event => setFilter(event.currentTarget.value);
-
-  const filterContactsOnChange = () => contacts.filter(contact =>
-    contact.name.toUpperCase().includes(filter.toUpperCase())
-  );
-  
-  const sortContactList = () => filterContactsOnChange().sort((firstContactName, secondContactName) =>
-    firstContactName.name.localeCompare(secondContactName.name)
-  );
+	const handleDelete = (id) => {
+		setPhonebook((prev) => ({
+			contacts: prev.contacts.filter((el) => el.id !== id),
+			filter: prev.filter,
+		}));
+	};
 
   return (
-    <Container>
+      <Container>
         <h1>Phonebook</h1>
-        <ContactForm onSubmit={addContact}></ContactForm>
-        <h2>Contacts</h2>
-        <Filter
-          value={filter}
-          onChange={handleFilter}
-        />
-        <ContactList contacts={sortContactList()}
-          ItemDelete={handleDelete}></ContactList>
+         <ContactForm onSubmit={addContact}></ContactForm>
+         <h2>Contacts</h2>
+         <Filter handleFilter={handleFilter}/>
+        <ContactList
+          contacts={phonebook.contacts}
+          seek={phonebook.filter}
+        ItemDelete={handleDelete}>
+        </ContactList>
       </Container>
-  );
+	);
 };
+
 export default App;
