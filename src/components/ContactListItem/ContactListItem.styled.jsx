@@ -9,7 +9,7 @@ export const ContactListButton = styled.button`
     background-color: #4d7d8e;
   }
 `;
-export const ContactListItem = styled.li`
+export const ContactListElement = styled.li`
   font-size: 16px;
 	line-height: 32px;
   list-style: none;
