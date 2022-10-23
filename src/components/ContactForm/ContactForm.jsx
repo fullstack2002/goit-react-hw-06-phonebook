@@ -10,8 +10,8 @@ const ContactForm = ({ addContact }) => {
 
 
   const handleChange = (event) => {
-        const { name, value } = event.target;
-        
+    const { name, value } = event.target;
+    
         switch (name) {
             case 'name':
                 setName(value)
