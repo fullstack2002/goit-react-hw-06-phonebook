@@ -9,7 +9,7 @@ const ContactForm = ({ addContact }) => {
     const [number, setNumber] = useState('');
 
 
-   const handleChange = (event) => {
+  const handleChange = (event) => {
         const { name, value } = event.target;
         
         switch (name) {
