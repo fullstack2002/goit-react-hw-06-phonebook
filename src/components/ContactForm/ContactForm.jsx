@@ -8,10 +8,9 @@ const ContactForm = ({ addContact }) => {
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
 
-
   const handleChange = (event) => {
     const { name, value } = event.target;
-    
+
         switch (name) {
             case 'name':
                 setName(value)
