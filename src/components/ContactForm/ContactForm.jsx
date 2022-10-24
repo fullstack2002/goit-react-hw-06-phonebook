@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { nanoid } from "nanoid";
-import PropTypes from "prop-types";
 import { PhoneForm, PhoneField, PhoneTitle, PhoneInput, PhoneButton } from './ContactForm.styled';
+import { addContact, getContacts } from '../../redux/contactsSlice';
+import { useSelector, useDispatch } from 'react-redux';
 
-const ContactForm = ({ addContact }) => {
-
+const ContactForm = () => {
     const [name, setName] = useState('');
     const [number, setNumber] = useState('');
 
@@ -22,12 +22,27 @@ const ContactForm = ({ addContact }) => {
                 setName('')
                 setNumber('')
         }
+  }
+  
+   const dispatch = useDispatch();
+    const contacts = useSelector(getContacts);
+
+    const alreadyInContacts = (name, number) => {
+        return contacts.find((item) => item.name.toLocaleLowerCase() === name.toLocaleLowerCase() || item.number === number);
+    }
+
+    const addNewContact = (name, number) => {
+        if (alreadyInContacts(name, number)) {
+            return alert(`${name} ${number} is already in Phonebook`);
+        }
+
+        dispatch(addContact({name, number}))
     }
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    addContact(name, number);
+    addNewContact(name, number);
 
     setName('')
     setNumber('')
@@ -65,9 +80,5 @@ const ContactForm = ({ addContact }) => {
     </PhoneForm>
     );
   };
-
-ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
-}
 
 export default ContactForm;
